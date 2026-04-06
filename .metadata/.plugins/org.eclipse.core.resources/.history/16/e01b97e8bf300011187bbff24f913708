@@ -1,0 +1,158 @@
+// Debug Code
+#include <stdint.h>
+
+// Адреса регистров
+#define RCC_BASE              0x40021000UL
+#define RCC_AHB2ENR           (*(volatile uint32_t *)(RCC_BASE + 0x4C))
+#define RCC_APB1ENR1          (*(volatile uint32_t *)(RCC_BASE + 0x58))
+
+#define GPIOA_BASE            0x48000000UL
+#define GPIOA_MODER           (*(volatile uint32_t *)(GPIOA_BASE + 0x00))
+#define GPIOA_ODR             (*(volatile uint32_t *)(GPIOA_BASE + 0x14))
+#define GPIOA_BSRR            (*(volatile uint32_t *)(GPIOA_BASE + 0x18))
+
+#define TIM6_BASE             0x40001000UL
+#define TIM6_CR1              (*(volatile uint32_t *)(TIM6_BASE + 0x00))
+#define TIM6_DIER             (*(volatile uint32_t *)(TIM6_BASE + 0x0C))
+#define TIM6_SR               (*(volatile uint32_t *)(TIM6_BASE + 0x10))
+#define TIM6_EGR              (*(volatile uint32_t *)(TIM6_BASE + 0x14))
+#define TIM6_PSC              (*(volatile uint32_t *)(TIM6_BASE + 0x28))
+#define TIM6_ARR              (*(volatile uint32_t *)(TIM6_BASE + 0x2C))
+
+#define NVIC_ISER1            (*(volatile uint32_t *)(0xE000E104UL))
+
+int main(void) {
+    // 1. Тактирование
+    RCC_AHB2ENR |= (1U << 0);   // GPIOA
+    RCC_APB1ENR1 |= (1U << 4);  // TIM6
+
+    // 2. Настройка PA5 (LED) и PA6 (Analyzer pin) как выходы
+    // PA5 = bits 10-11, PA6 = bits 12-13
+    GPIOA_MODER &= ~((3U << 10) | (3U << 12));
+    GPIOA_MODER |=  ((1U << 10) | (1U << 12));
+
+    // 3. Настройка таймера (на 4 МГц MSI)
+    TIM6_PSC = 400 - 1;     // Частота счета 10 кГц
+    TIM6_ARR = 1000 - 1;    // Прерывание каждые 0.1 сек (10 Гц) для теста
+    TIM6_EGR |= (1U << 0);  // Update event
+    TIM6_SR &= ~(1U << 0);  // Очистка флага
+
+    // 4. NVIC
+    NVIC_ISER1 |= (1U << (54 - 32));
+    TIM6_DIER |= (1U << 0);
+
+    // 5. Старт
+    TIM6_CR1 |= (1U << 0);
+
+    while (1) {
+        __asm("wfi");
+    }
+}
+
+void TIM6_DAC_IRQHandler(void) __attribute__((used));
+void TIM6_DAC_IRQHandler(void) {
+    // МГНОВЕННО переключаем PA6 для анализатора
+    GPIOA_ODR ^= (1U << 6);
+
+    if (TIM6_SR & (1U << 0)) {
+        TIM6_SR &= ~(1U << 0);
+        (void)TIM6_SR; // Pipeline sync
+
+        // Переключаем LED (PA5)
+        GPIOA_ODR ^= (1U << 5);
+    }
+}
+
+
+/* Real Code
+#include <stdint.h>
+
+// Clock Control Registers (RCC)
+#define RCC_BASE              0x40021000UL
+#define RCC_AHB2ENR           (*(volatile uint32_t *)(RCC_BASE + 0x4C))
+#define RCC_APB1ENR1          (*(volatile uint32_t *)(RCC_BASE + 0x58))
+
+// GPIOA Registers
+#define GPIOA_BASE            0x48000000UL
+#define GPIOA_MODER           (*(volatile uint32_t *)(GPIOA_BASE + 0x00))
+#define GPIOA_BSRR            (*(volatile uint32_t *)(GPIOA_BASE + 0x18))
+
+// TIM6 Basic Timer Registers
+#define TIM6_BASE             0x40001000UL
+#define TIM6_CR1              (*(volatile uint32_t *)(TIM6_BASE + 0x00))
+#define TIM6_DIER             (*(volatile uint32_t *)(TIM6_BASE + 0x0C))
+#define TIM6_SR               (*(volatile uint32_t *)(TIM6_BASE + 0x10))
+#define TIM6_EGR              (*(volatile uint32_t *)(TIM6_BASE + 0x14)) // Event Generation
+#define TIM6_PSC              (*(volatile uint32_t *)(TIM6_BASE + 0x28))
+#define TIM6_ARR              (*(volatile uint32_t *)(TIM6_BASE + 0x2C))
+
+// NVIC (Nested Vectored Interrupt Controller)
+#define NVIC_ISER1            (*(volatile uint32_t *)(0xE000E104UL))
+
+void delay_loop(uint32_t count) {
+	for (uint32_t i = 0; i < count; i++) {
+		__asm("nop");
+	}
+}
+
+int main(void) {
+	// 1. Enable Clocks
+	RCC_AHB2ENR |= (1U << 0);   // Enable GPIOA clock
+	RCC_APB1ENR1 |= (1U << 4);  // Enable TIM6 clock
+
+	delay_loop(1000); // Wait for clock synchronization
+
+	// 2. Configure PA5 as Output (Nucleo User LED)
+	GPIOA_MODER &= ~(3U << 10); // Clear bits 10-11
+	GPIOA_MODER |= (1U << 10);  // Set bit 10 to Output Mode (01)
+
+	// Turn LED ON immediately to confirm GPIO is working
+	GPIOA_BSRR = (1U << 5);
+
+	delay_loop(1000000);  // Visual delay before starting the timer
+
+	// 3. Timer Configuration
+	// Standard MSI clock after Reset is 4 MHz.
+	// Calculations: 4,000,000 / 400 (PSC) = 10,000 Hz. 10,000 / 10,000 (ARR) = 1 second.
+	TIM6_PSC = 400 - 1;
+	TIM6_ARR = 10000 - 1;
+
+	// Trigger an Update Event to load PSC and ARR into the shadow registers
+	TIM6_EGR |= (1U << 0);
+
+	// Clear the Update Interrupt Flag that was just triggered by EGR
+	TIM6_SR &= ~(1U << 0);
+
+	// 4. Enable Interrupts
+	TIM6_DIER |= (1U << 0);              // Enable Timer Update Interrupt (UIE)
+	NVIC_ISER1 |= (1U << (54 - 32));     // Enable IRQ 54 (TIM6_DAC1) in NVIC ISER1
+
+	// 5. Start the Timer
+	TIM6_CR1 |= (1U << 0); // Set CEN (Counter Enable) bit
+
+	while (1) {
+		__asm("wfi");
+		// Wait For Interrupt (Sleep mode until next blink)
+	}
+}
+
+// Handler name must match the vector table in startup_stm32l476rgtx.s
+void TIM6_DAC_IRQHandler(void) __attribute__((used));
+
+void TIM6_DAC_IRQHandler(void) {
+	// Check if the Update Interrupt Flag (UIF) is set
+	if (TIM6_SR & (1U << 0)) {
+		TIM6_SR &= ~(1U << 0); // Clear the flag
+		(void) TIM6_SR;         // Mandatory "dummy read" to ensure flag is cleared before exiting
+
+		static uint8_t led_state = 0;
+
+		if (led_state) {
+			GPIOA_BSRR = (1U << (5 + 16));  // Reset PA5 (Turn LED OFF)
+			led_state = 0;
+		} else {
+			GPIOA_BSRR = (1U << 5);          // Set PA5 (Turn LED ON)
+			led_state = 1;
+		}
+	}
+} */

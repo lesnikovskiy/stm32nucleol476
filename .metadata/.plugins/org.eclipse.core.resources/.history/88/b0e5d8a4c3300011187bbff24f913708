@@ -1,0 +1,180 @@
+#include <stdint.h>
+
+// Vector Table and System Control
+#define SCB_VTOR              (*(volatile uint32_t *)0xE000ED08UL)
+#define CPACR                 (*(volatile uint32_t *)0xE000ED88UL)
+
+// Clock Control (RCC)
+#define RCC_AHB2ENR           (*(volatile uint32_t *)0x4002104CUL)
+#define RCC_APB1ENR1          (*(volatile uint32_t *)0x40021058UL)
+
+// GPIOA
+#define GPIOA_MODER           (*(volatile uint32_t *)0x48000000UL)
+#define GPIOA_ODR             (*(volatile uint32_t *)0x48000014UL)
+#define GPIOA_BSRR            (*(volatile uint32_t *)0x48000018UL)
+
+// TIM6
+#define TIM6_BASE             0x40001000UL
+#define TIM6_CR1              (*(volatile uint32_t *)(TIM6_BASE + 0x00))
+#define TIM6_DIER             (*(volatile uint32_t *)(TIM6_BASE + 0x0C))
+#define TIM6_SR               (*(volatile uint32_t *)(TIM6_BASE + 0x10))
+#define TIM6_EGR              (*(volatile uint32_t *)(TIM6_BASE + 0x14))
+#define TIM6_CNT              (*(volatile uint32_t *)(TIM6_BASE + 0x24))
+#define TIM6_PSC              (*(volatile uint32_t *)(TIM6_BASE + 0x28))
+#define TIM6_ARR              (*(volatile uint32_t *)(TIM6_BASE + 0x2C))
+
+// NVIC
+#define NVIC_ISER1            (*(volatile uint32_t *)0xE000E104UL)
+
+// --- CRITICAL ADDITIONS ---
+
+// 1. Empty SystemInit to prevent startup file from calling unknown code
+void SystemInit(void) {
+	// Left empty to ensure we have full control in main()
+}
+
+void delay_loop(uint32_t count) {
+	for (volatile uint32_t i = 0; i < count; i++)
+		__asm("nop");
+}
+
+int main(void) {
+	// 2. Fundamental CPU Setup
+	SCB_VTOR = 0x08000000;
+	CPACR |= ((3UL << 20) | (3UL << 22)); // Enable FPU
+
+	// 3. Enable Clocks
+	RCC_AHB2ENR |= (1U << 0);
+	RCC_APB1ENR1 |= (1U << 4);
+	delay_loop(1000);
+
+	// 4. Configure Outputs
+	GPIOA_MODER &= ~((3U << 10) | (3U << 12));
+	GPIOA_MODER |= ((1U << 10) | (1U << 12));
+
+	// 5. Hard Reset Timer Peripheral (Clear all bits including One-Pulse Mode)
+	TIM6_CR1 = 0;
+	TIM6_PSC = 400 - 1;     // 4MHz / 400 = 10kHz
+	TIM6_ARR = 2000 - 1;    // 0.2s interval
+	TIM6_CNT = 0;
+
+	TIM6_EGR |= (1U << 0);  // Update registers
+	TIM6_SR &= ~(1U << 0);  // Clear flag
+
+	// 6. Enable Interrupts
+	NVIC_ISER1 |= (1U << (54 - 32));
+	TIM6_DIER |= (1U << 0);
+
+	// 7. Start
+	TIM6_CR1 |= (1U << 0);
+
+	while (1) {
+		// If the CPU hits a HardFault, it will jump out of here.
+		// If it stays here, the LED should blink.
+		__asm("nop");
+	}
+}
+
+void TIM6_DAC_IRQHandler(void) {
+	if (TIM6_SR & (1U << 0)) {
+		TIM6_SR &= ~(1U << 0); // Clear Flag
+		(void) TIM6_SR;         // Dummy read
+		__asm volatile ("dsb sy");
+
+		GPIOA_ODR ^= (1U << 6);
+		GPIOA_ODR ^= (1U << 5);
+	}
+}
+
+/* Real Code
+ #include <stdint.h>
+
+ // Clock Control Registers (RCC)
+ #define RCC_BASE              0x40021000UL
+ #define RCC_AHB2ENR           (*(volatile uint32_t *)(RCC_BASE + 0x4C))
+ #define RCC_APB1ENR1          (*(volatile uint32_t *)(RCC_BASE + 0x58))
+
+ // GPIOA Registers
+ #define GPIOA_BASE            0x48000000UL
+ #define GPIOA_MODER           (*(volatile uint32_t *)(GPIOA_BASE + 0x00))
+ #define GPIOA_BSRR            (*(volatile uint32_t *)(GPIOA_BASE + 0x18))
+
+ // TIM6 Basic Timer Registers
+ #define TIM6_BASE             0x40001000UL
+ #define TIM6_CR1              (*(volatile uint32_t *)(TIM6_BASE + 0x00))
+ #define TIM6_DIER             (*(volatile uint32_t *)(TIM6_BASE + 0x0C))
+ #define TIM6_SR               (*(volatile uint32_t *)(TIM6_BASE + 0x10))
+ #define TIM6_EGR              (*(volatile uint32_t *)(TIM6_BASE + 0x14)) // Event Generation
+ #define TIM6_PSC              (*(volatile uint32_t *)(TIM6_BASE + 0x28))
+ #define TIM6_ARR              (*(volatile uint32_t *)(TIM6_BASE + 0x2C))
+
+ // NVIC (Nested Vectored Interrupt Controller)
+ #define NVIC_ISER1            (*(volatile uint32_t *)(0xE000E104UL))
+
+ void delay_loop(uint32_t count) {
+ for (uint32_t i = 0; i < count; i++) {
+ __asm("nop");
+ }
+ }
+
+ int main(void) {
+ // 1. Enable Clocks
+ RCC_AHB2ENR |= (1U << 0);   // Enable GPIOA clock
+ RCC_APB1ENR1 |= (1U << 4);  // Enable TIM6 clock
+
+ delay_loop(1000); // Wait for clock synchronization
+
+ // 2. Configure PA5 as Output (Nucleo User LED)
+ GPIOA_MODER &= ~(3U << 10); // Clear bits 10-11
+ GPIOA_MODER |= (1U << 10);  // Set bit 10 to Output Mode (01)
+
+ // Turn LED ON immediately to confirm GPIO is working
+ GPIOA_BSRR = (1U << 5);
+
+ delay_loop(1000000);  // Visual delay before starting the timer
+
+ // 3. Timer Configuration
+ // Standard MSI clock after Reset is 4 MHz.
+ // Calculations: 4,000,000 / 400 (PSC) = 10,000 Hz. 10,000 / 10,000 (ARR) = 1 second.
+ TIM6_PSC = 400 - 1;
+ TIM6_ARR = 10000 - 1;
+
+ // Trigger an Update Event to load PSC and ARR into the shadow registers
+ TIM6_EGR |= (1U << 0);
+
+ // Clear the Update Interrupt Flag that was just triggered by EGR
+ TIM6_SR &= ~(1U << 0);
+
+ // 4. Enable Interrupts
+ TIM6_DIER |= (1U << 0);              // Enable Timer Update Interrupt (UIE)
+ NVIC_ISER1 |= (1U << (54 - 32));     // Enable IRQ 54 (TIM6_DAC1) in NVIC ISER1
+
+ // 5. Start the Timer
+ TIM6_CR1 |= (1U << 0); // Set CEN (Counter Enable) bit
+
+ while (1) {
+ __asm("wfi");
+ // Wait For Interrupt (Sleep mode until next blink)
+ }
+ }
+
+ // Handler name must match the vector table in startup_stm32l476rgtx.s
+ void TIM6_DAC_IRQHandler(void) __attribute__((used));
+
+ void TIM6_DAC_IRQHandler(void) {
+ // Check if the Update Interrupt Flag (UIF) is set
+ if (TIM6_SR & (1U << 0)) {
+ TIM6_SR &= ~(1U << 0); // Clear the flag
+ (void) TIM6_SR;         // Mandatory "dummy read" to ensure flag is cleared before exiting
+
+ static uint8_t led_state = 0;
+
+ if (led_state) {
+ GPIOA_BSRR = (1U << (5 + 16));  // Reset PA5 (Turn LED OFF)
+ led_state = 0;
+ } else {
+ GPIOA_BSRR = (1U << 5);          // Set PA5 (Turn LED ON)
+ led_state = 1;
+ }
+ }
+ } */

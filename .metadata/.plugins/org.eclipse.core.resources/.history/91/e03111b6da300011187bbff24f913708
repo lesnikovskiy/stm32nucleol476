@@ -1,0 +1,90 @@
+
+
+
+
+/*
+#include <stdint.h>
+
+// --- Core and Debug Registers ---
+#define SCB_VTOR              (*(volatile uint32_t *)0xE000ED08UL)
+#define CPACR                 (*(volatile uint32_t *)0xE000ED88UL)
+#define DBGMCU_CR             (*(volatile uint32_t *)0xE0042004UL)
+
+// --- Clock Control (RCC) ---
+#define RCC_AHB2ENR           (*(volatile uint32_t *)0x4002104CUL)
+#define RCC_APB2ENR           (*(volatile uint32_t *)0x40021060UL)
+
+// --- GPIO Registers ---
+#define GPIOA_MODER           (*(volatile uint32_t *)0x48000000UL)
+#define GPIOA_ODR             (*(volatile uint32_t *)0x48000014UL)
+#define GPIOC_MODER           (*(volatile uint32_t *)0x48000800UL)
+
+// --- SYSCFG and EXTI ---
+#define SYSCFG_EXTICR4        (*(volatile uint32_t *)0x40010014UL)
+#define EXTI_IMR1             (*(volatile uint32_t *)0x40010400UL)
+#define EXTI_FTSR1            (*(volatile uint32_t *)0x4001040CUL)
+#define EXTI_PR1              (*(volatile uint32_t *)0x40010420UL)
+
+// --- NVIC ---
+#define NVIC_ISER1            (*(volatile uint32_t *)0xE000E104UL)
+
+void SystemInit(void) {
+}
+
+// Software delay for debouncing
+void delay_debounce(uint32_t count) {
+	for (volatile uint32_t i = 0; i < count; i++)
+		__asm("nop");
+}
+
+int main(void) {
+	// 0. Enable Debug and FPU (fixes from previous session)
+	DBGMCU_CR |= (1U << 0) | (1U << 1) | (1U << 2);
+	SCB_VTOR = 0x08000000;
+	CPACR |= ((3UL << 20) | (3UL << 22));
+	__asm volatile ("dsb sy; isb");
+
+	// 1. Enable Clocks: GPIOA, GPIOC, and SYSCFG
+	RCC_AHB2ENR |= (1U << 0) | (1U << 2);
+	RCC_APB2ENR |= (1U << 0); // SYSCFG clock is required for EXTI routing
+	delay_debounce(1000);
+
+	// 2. Configure PA5 as Output (User LED)
+	GPIOA_MODER &= ~(3U << 10);
+	GPIOA_MODER |= (1U << 10);
+
+	// 3. Configure PC13 as Input (User Button)
+	GPIOC_MODER &= ~(3U << 26);
+
+	// 4. SYSCFG: Map EXTI Line 13 to Port C (bits 4-7 of EXTICR4)
+	SYSCFG_EXTICR4 &= ~(0xFU << 4);
+	SYSCFG_EXTICR4 |= (0x2U << 4); // 0010 binary for Port C
+
+	// 5. EXTI Setup: Line 13, Falling Edge (button pull-down)
+	EXTI_FTSR1 |= (1U << 13);
+	EXTI_IMR1 |= (1U << 13);
+
+	// 6. NVIC Setup: EXTI15_10 is IRQ 40 (bit 8 of ISER1)
+	NVIC_ISER1 |= (1U << (40 - 32));
+
+	while (1) {
+		__asm("nop");
+	}
+}
+
+void EXTI15_10_IRQHandler(void) {
+	// Check if the interrupt was triggered by Line 13
+	if (EXTI_PR1 & (1U << 13)) {
+
+		// Clear flag immediately (write 1 to clear)
+		EXTI_PR1 = (1U << 13);
+		(void) EXTI_PR1; // Dummy read for synchronization
+		__asm volatile ("dsb sy; isb");
+
+		// Toggle LED state
+		GPIOA_ODR ^= (1U << 5);
+
+		// Crucial: Software debounce to prevent multiple toggles per click
+		delay_debounce(100000);
+	}
+}*/

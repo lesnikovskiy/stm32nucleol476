@@ -1,0 +1,93 @@
+#include <stdint.h>
+
+// --- Core Registers ---
+#define SCB_VTOR              (*(volatile uint32_t *)0xE000ED08UL)
+#define CPACR                 (*(volatile uint32_t *)0xE000ED88UL)
+
+// --- Clock Control (RCC) ---
+#define RCC_BASE              0x40021000UL
+#define RCC_AHB2ENR           (*(volatile uint32_t *)(RCC_BASE + 0x4C))
+#define RCC_APB2ENR           (*(volatile uint32_t *)(RCC_BASE + 0x60))
+
+// --- GPIO Registers ---
+#define GPIOA_BASE            0x48000000UL
+#define GPIOA_MODER           (*(volatile uint32_t *)(GPIOA_BASE + 0x00))
+#define GPIOA_BSRR            (*(volatile uint32_t *)(GPIOA_BASE + 0x18))
+
+#define GPIOC_BASE            0x48000800UL
+#define GPIOC_MODER           (*(volatile uint32_t *)(GPIOC_BASE + 0x00))
+#define GPIOC_IDR             (*(volatile uint32_t *)(GPIOC_BASE + 0x10))
+
+// --- System Configuration (SYSCFG) ---
+#define SYSCFG_BASE           0x40010000UL
+#define SYSCFG_EXTICR4        (*(volatile uint32_t *)(SYSCFG_BASE + 0x14))
+
+// --- External Interrupts (EXTI) ---
+#define EXTI_BASE             0x40010400UL
+#define EXTI_IMR1             (*(volatile uint32_t *)(EXTI_BASE + 0x00))
+#define EXTI_FTSR1            (*(volatile uint32_t *)(EXTI_BASE + 0x0C))
+#define EXTI_PR1              (*(volatile uint32_t *)(EXTI_BASE + 0x20))
+
+// --- NVIC ---
+#define NVIC_ISER1            (*(volatile uint32_t *)(0xE000E104UL))
+
+void SystemInit(void) {} // Empty SystemInit to override default startup calls
+
+int main(void) {
+    // 0. Fundamental Hardware Setup
+    SCB_VTOR = 0x08000000;                // Point to Flash start
+    CPACR |= ((3UL << 20) | (3UL << 22)); // Enable FPU (Coprocessor 10 & 11)
+
+    // 1. Clocks: Enable GPIOA, GPIOC (AHB2) and SYSCFG (APB2)
+    RCC_AHB2ENR |= (1U << 0) | (1U << 2); // Enable GPIOA and GPIOC clocks
+    RCC_APB2ENR |= (1U << 0);             // Enable SYSCFG clock (Essential for EXTI mapping)
+
+    for(volatile int i = 0; i < 1000; i++); // Wait for clocks to stabilize
+
+    // 2. Configure PA5 as Output (User LED)
+    GPIOA_MODER &= ~(3U << 10);
+    GPIOA_MODER |=  (1U << 10);
+
+    // 3. Configure PC13 as Input (User Button)
+    GPIOC_MODER &= ~(3U << 26); // Set PC13 to Input mode (00)
+
+    // 4. SYSCFG: Map EXTI Line 13 to Port C
+    // EXTICR4 controls lines 12-15. Line 13 is bits [7:4].
+    // Value 0x2 maps Line 13 to GPIOC.
+    SYSCFG_EXTICR4 &= ~(0xFU << 4); // Clear bits 4-7
+    SYSCFG_EXTICR4 |=  (0x2U << 4); // Set bits 4-7 to 0010 (Port C)
+
+    // 5. EXTI Setup for Line 13
+    EXTI_FTSR1 |= (1U << 13); // Trigger on Falling Edge (button press)
+    EXTI_IMR1  |= (1U << 13); // Unmask (enable) interrupt for Line 13
+
+    // 6. NVIC Setup: EXTI15_10 is IRQ 40
+    // 40 - 32 = bit 8 of ISER[1]
+    NVIC_ISER1 |= (1U << 8);
+
+    while (1) {
+        __asm("nop"); // Main loop idle; interrupt handles the logic
+    }
+}
+
+// Handler name must match startup_stm32l476rgtx.s exactly
+void EXTI15_10_IRQHandler(void) {
+    // Check if the interrupt pending bit for Line 13 is set
+    if (EXTI_PR1 & (1U << 13)) {
+
+        static int led_state = 0;
+        if (led_state) {
+            GPIOA_BSRR = (1U << 21); // Turn LED OFF (Reset PA5)
+            led_state = 0;
+        } else {
+            GPIOA_BSRR = (1U << 5);  // Turn LED ON (Set PA5)
+            led_state = 1;
+        }
+
+        // Clear the pending flag by writing a '1' to it
+        EXTI_PR1 = (1U << 13);
+
+        // Dummy read to ensure the flag is cleared before exiting ISR
+        (void)EXTI_PR1;
+    }
+}

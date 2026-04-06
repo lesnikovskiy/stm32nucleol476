@@ -1,0 +1,10 @@
+17:41:13 **** Incremental Build of configuration Debug for project 006HALButtonLEDInterrupt ****
+make -j9 all 
+arm-none-eabi-size  006HALButtonLEDInterrupt.elf 
+   text	   data	    bss	    dec	    hex	filename
+  12628	     12	   1708	  14348	   380c	006HALButtonLEDInterrupt.elf
+Finished building: default.size.stdout
+ 
+
+17:41:13 Build Finished. 0 errors, 0 warnings. (took 232ms)
+
