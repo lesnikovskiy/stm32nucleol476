@@ -58,8 +58,8 @@ void TIM6_DACUNDER_IRQHandler(void) {
 	// Check if the Update Interrupt Flag is set
 	if (TIM6_SR & (1U << 0)) {
 		TIM6_SR &= ~(1U << 0);  // Clear the interrupt flag
-		(void) TIM6_SR;          // Dummy read to ensure bus synchronization
+		(void) TIM6_SR;  // Dummy read to ensure bus synchronization
 
-		GPIOA_ODR ^= (1U << 5); // Toggle PA5 (LED) state using XOR
+		GPIOA_ODR ^= (1U << 5);  // Toggle PA5 (LED) state using XOR
 	}
 }

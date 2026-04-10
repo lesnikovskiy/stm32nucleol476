@@ -1,5 +1,8 @@
 #include <stdint.h>
 
+// Debug in sleep mode
+#define DBGMCU_CR             (*(volatile uint32_t *)0xE0042004UL)
+
 // Vector Table and FPU
 #define SCB_VTOR              (*(volatile uint32_t *)0xE000ED08UL)
 #define CPACR                 (*(volatile uint32_t *)0xE000ED88UL)

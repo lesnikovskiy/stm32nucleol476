@@ -196,11 +196,11 @@ void TIM6_DACUNDER_IRQHandler(void) {
  8000290:	4a08      	ldr	r2, [pc, #32]	@ (80002b4 <TIM6_DACUNDER_IRQHandler+0x38>)
  8000292:	f023 0301 	bic.w	r3, r3, #1
  8000296:	6013      	str	r3, [r2, #0]
-		(void) TIM6_SR;          // Dummy read to ensure bus synchronization
+		(void) TIM6_SR;  // Dummy read to ensure bus synchronization
  8000298:	4b06      	ldr	r3, [pc, #24]	@ (80002b4 <TIM6_DACUNDER_IRQHandler+0x38>)
  800029a:	681b      	ldr	r3, [r3, #0]
 
-		GPIOA_ODR ^= (1U << 5); // Toggle PA5 (LED) state using XOR
+		GPIOA_ODR ^= (1U << 5);  // Toggle PA5 (LED) state using XOR
  800029c:	4b06      	ldr	r3, [pc, #24]	@ (80002b8 <TIM6_DACUNDER_IRQHandler+0x3c>)
  800029e:	681b      	ldr	r3, [r3, #0]
  80002a0:	4a05      	ldr	r2, [pc, #20]	@ (80002b8 <TIM6_DACUNDER_IRQHandler+0x3c>)

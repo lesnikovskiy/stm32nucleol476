@@ -1,7 +1,21 @@
-22:47:24 **** Incremental Build of configuration Debug for project 003ButtonLEDInterrupt ****
+23:39:07 **** Incremental Build of configuration Debug for project 005TIM6DebugLEDBlink ****
 make -j9 all 
-arm-none-eabi-size  003ButtonLEDInterrupt.elf 
+arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DSTM32L4 -DSTM32 -DNUCLEO_L476RG -DSTM32L476RGTx -c -I../Inc -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/main.o"
+arm-none-eabi-gcc -o "005TIM6DebugLEDBlink.elf" @"objects.list"   -mcpu=cortex-m4 -T"/Users/ruslan/projects/embedded_c/nucleo_projects/005TIM6DebugLEDBlink/STM32L476RGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="005TIM6DebugLEDBlink.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: 005TIM6DebugLEDBlink.elf
+ 
+arm-none-eabi-size  005TIM6DebugLEDBlink.elf 
+arm-none-eabi-objdump -h -S 005TIM6DebugLEDBlink.elf  > "005TIM6DebugLEDBlink.list"
    text	   data	    bss	    dec	    hex	filename
-   1052	      0	   1568	   2620	    a3c	003ButtonLEDInterrupt.elf
+   1032	      0	   1568	   2600	    a28	005TIM6DebugLEDBlink.elf
+Finished building: default.size.stdout
+ 
+Finished building: 005TIM6DebugLEDBlink.list
+ 
+23:39:46 **** Incremental Build of configuration Debug for project 005TIM6DebugLEDBlink ****
+make -j9 all 
+arm-none-eabi-size  005TIM6DebugLEDBlink.elf 
+   text	   data	    bss	    dec	    hex	filename
+   1032	      0	   1568	   2600	    a28	005TIM6DebugLEDBlink.elf
 Finished building: default.size.stdout
  

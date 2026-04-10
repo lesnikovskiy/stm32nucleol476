@@ -1,4 +1,4 @@
-23:55:22 **** Incremental Build of configuration Debug for project 002ButtonLED ****
+23:23:25 **** Incremental Build of configuration Debug for project 002ButtonLED ****
 make -j9 all 
 arm-none-eabi-size  002ButtonLED.elf 
    text	   data	    bss	    dec	    hex	filename
@@ -6,5 +6,5 @@ arm-none-eabi-size  002ButtonLED.elf
 Finished building: default.size.stdout
  
 
-23:55:22 Build Finished. 0 errors, 0 warnings. (took 113ms)
+23:23:26 Build Finished. 0 errors, 0 warnings. (took 222ms)
 

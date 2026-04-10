@@ -1,0 +1,66 @@
+#include <stdint.h>
+
+// Base Addresses
+#define RCC_BASE      0x40021000UL
+#define GPIOA_BASE    0x48000000UL
+#define TIM6_BASE     0x40001000UL
+
+// RCC Registers
+#define RCC_AHB2ENR   (*(volatile uint32_t *)(RCC_BASE + 0x4C))
+#define RCC_APB1ENR1  (*(volatile uint32_t *)(RCC_BASE + 0x58))
+
+// GPIOA Registers (PA5 is the User LED)
+#define GPIOA_MODER   (*(volatile uint32_t *)(GPIOA_BASE + 0x00))
+#define GPIOA_ODR     (*(volatile uint32_t *)(GPIOA_BASE + 0x14))
+
+// TIM6 Registers
+#define TIM6_CR1      (*(volatile uint32_t *)(TIM6_BASE + 0x00))
+#define TIM6_DIER     (*(volatile uint32_t *)(TIM6_BASE + 0x0C))
+#define TIM6_SR       (*(volatile uint32_t *)(TIM6_BASE + 0x10))
+#define TIM6_EGR      (*(volatile uint32_t *)(TIM6_BASE + 0x14))
+#define TIM6_PSC      (*(volatile uint32_t *)(TIM6_BASE + 0x28))
+#define TIM6_ARR      (*(volatile uint32_t *)(TIM6_BASE + 0x2C))
+
+// NVIC Registers
+#define NVIC_ISER1    (*(volatile uint32_t *)(0xE000E104UL))
+
+int main(void) {
+	// 1. Enable Clocks for GPIOA and TIM6
+	RCC_AHB2ENR |= (1U << 0);
+	RCC_APB1ENR1 |= (1U << 4);
+
+	// 2. Configure PA5 as Output (User LED)
+	GPIOA_MODER &= ~(3U << 10); // Clear mode bits
+	GPIOA_MODER |= (1U << 10); // Set to Output mode (01)
+
+	// 3. Timer Configuration (1 second blink at 4 MHz MSI clock)
+	TIM6_PSC = 400 - 1;     // Prescaler: 4,000,000 / 400 = 10,000 Hz count freq
+	TIM6_ARR = 10000 - 1;   // Auto-reload: 10,000 / 10,000 = 1 second period
+	TIM6_EGR |= (1U << 0);  // Manually generate update to load PSC and ARR
+	TIM6_SR &= ~(1U << 0); // Clear the update flag caused by EGR
+
+	// 4. Enable Interrupts in NVIC and Timer
+	NVIC_ISER1 |= (1U << (54 - 32)); // Enable IRQ 54 in NVIC
+	TIM6_DIER |= (1U << 0);         // Enable Update Interrupt in Timer (UIE)
+
+	// 5. Start the Timer
+	TIM6_CR1 |= (1U << 0); // Set CEN (Counter Enable) bit
+
+	while (1) {
+		// Comment the line to avoid ST Link errors
+		// __asm("wfi");
+		// Wait For Interrupt (Sleep mode)
+	}
+}
+
+// Interrupt Handler (Name must match startup_stm32l476rgtx.s)
+__attribute__((used, section(".text")))
+void TIM6_DACUNDER_IRQHandler(void) {
+	// Check if the Update Interrupt Flag is set
+	if (TIM6_SR & (1U << 0)) {
+		TIM6_SR &= ~(1U << 0);  // Clear the interrupt flag
+		(void) TIM6_SR;// Dummy read to ensure bus synchronization
+
+		GPIOA_ODR ^= (1U << 5);// Toggle PA5 (LED) state using XOR
+	}
+}
