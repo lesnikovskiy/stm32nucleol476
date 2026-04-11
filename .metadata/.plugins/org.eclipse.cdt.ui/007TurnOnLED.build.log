@@ -1,17 +1,9 @@
-22:52:28 **** Incremental Build of configuration Debug for project 007TurnOnLED ****
-make -j9 all 
-arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DSTM32L4 -DSTM32 -DNUCLEO_L476RG -DSTM32L476RGTx -c -I../Inc -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/main.o"
-arm-none-eabi-gcc -o "007TurnOnLED.elf" @"objects.list"   -mcpu=cortex-m4 -T"/Users/ruslan/projects/embedded_c/nucleo_projects/007TurnOnLED/STM32L476RGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="007TurnOnLED.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
-Finished building target: 007TurnOnLED.elf
- 
-arm-none-eabi-size  007TurnOnLED.elf 
-arm-none-eabi-objdump -h -S 007TurnOnLED.elf  > "007TurnOnLED.list"
-   text	   data	    bss	    dec	    hex	filename
-    784	      0	   1568	   2352	    930	007TurnOnLED.elf
-Finished building: default.size.stdout
- 
-Finished building: 007TurnOnLED.list
+22:56:42 **** Clean-only build of configuration Debug for project 007TurnOnLED ****
+make -j9 clean 
+rm -rf ./Startup/startup_stm32l476rgtx.d ./Startup/startup_stm32l476rgtx.o
+rm -rf ./Src/main.cyclo ./Src/main.d ./Src/main.o ./Src/main.su ./Src/syscalls.cyclo ./Src/syscalls.d ./Src/syscalls.o ./Src/syscalls.su ./Src/sysmem.cyclo ./Src/sysmem.d ./Src/sysmem.o ./Src/sysmem.su
+rm -rf 007TurnOnLED.elf 007TurnOnLED.list 007TurnOnLED.map default.size.stdout
  
 
-22:52:28 Build Finished. 0 errors, 0 warnings. (took 376ms)
+22:56:42 Build Finished. 0 errors, 0 warnings. (took 107ms)
 
