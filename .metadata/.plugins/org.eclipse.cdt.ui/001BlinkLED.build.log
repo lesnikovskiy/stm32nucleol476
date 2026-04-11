@@ -1,10 +1,9 @@
-23:27:05 **** Incremental Build of configuration Debug for project 001BlinkLED ****
-make -j9 all 
-arm-none-eabi-size  001BlinkLED.elf 
-   text	   data	    bss	    dec	    hex	filename
-    776	      0	   1568	   2344	    928	001BlinkLED.elf
-Finished building: default.size.stdout
+22:54:53 **** Clean-only build of configuration Debug for project 001BlinkLED ****
+make -j9 clean 
+rm -rf ./Startup/startup_stm32l476rgtx.d ./Startup/startup_stm32l476rgtx.o
+rm -rf ./Src/main.cyclo ./Src/main.d ./Src/main.o ./Src/main.su ./Src/syscalls.cyclo ./Src/syscalls.d ./Src/syscalls.o ./Src/syscalls.su ./Src/sysmem.cyclo ./Src/sysmem.d ./Src/sysmem.o ./Src/sysmem.su
+rm -rf 001BlinkLED.elf 001BlinkLED.list 001BlinkLED.map default.size.stdout
  
 
-23:27:05 Build Finished. 0 errors, 0 warnings. (took 108ms)
+22:54:54 Build Finished. 0 errors, 0 warnings. (took 184ms)
 

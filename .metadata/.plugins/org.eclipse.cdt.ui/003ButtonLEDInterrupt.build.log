@@ -1,10 +1,9 @@
-22:47:24 **** Incremental Build of configuration Debug for project 003ButtonLEDInterrupt ****
-make -j9 all 
-arm-none-eabi-size  003ButtonLEDInterrupt.elf 
-   text	   data	    bss	    dec	    hex	filename
-   1052	      0	   1568	   2620	    a3c	003ButtonLEDInterrupt.elf
-Finished building: default.size.stdout
+22:55:05 **** Clean-only build of configuration Debug for project 003ButtonLEDInterrupt ****
+make -j9 clean 
+rm -rf ./Startup/startup_stm32l476rgtx.d ./Startup/startup_stm32l476rgtx.o
+rm -rf ./Src/main.cyclo ./Src/main.d ./Src/main.o ./Src/main.su ./Src/syscalls.cyclo ./Src/syscalls.d ./Src/syscalls.o ./Src/syscalls.su ./Src/sysmem.cyclo ./Src/sysmem.d ./Src/sysmem.o ./Src/sysmem.su
+rm -rf 003ButtonLEDInterrupt.elf 003ButtonLEDInterrupt.list 003ButtonLEDInterrupt.map default.size.stdout
  
 
-22:47:24 Build Finished. 0 errors, 0 warnings. (took 308ms)
+22:55:05 Build Finished. 0 errors, 0 warnings. (took 106ms)
 

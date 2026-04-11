@@ -1,2 +1,0 @@
-../Src/main.c:31:5:main	4	static,ignoring_inline_asm
-../Src/main.c:65:6:TIM6_DACUNDER_IRQHandler	4	static

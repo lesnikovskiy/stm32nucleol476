@@ -1,0 +1,23 @@
+/**
+ User LD2: the green LED is a user LED connected to ARDUINO® signal D13 corresponding
+ to STM32 I/O PA5 (pin 21) or PB13 (pin 34) depending on the STM32 target. Refer to
+ Table 11 to Table 23
+
+ Connector CN5 digital
+ Pin 6
+ Pin name D13
+ STM32Pin PA5
+ Function SPI1_SCK
+ ******************************************************************************
+ */
+
+#include <stdint.h>
+
+#define RCC_BASE
+#define RCC_AHB2 (*(volatile uint_32*)48000000UL)
+
+int main(void) {
+	/* Loop forever */
+	for (;;)
+		;
+}

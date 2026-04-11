@@ -1,0 +1,42 @@
+/**
+ User LD2: the green LED is a user LED connected to ARDUINO® signal D13 corresponding
+ to STM32 I/O PA5 (pin 21) or PB13 (pin 34) depending on the STM32 target. Refer to
+ Table 11 to Table 23
+
+ Connector CN5 digital
+ Pin 6
+ Pin name D13
+ STM32Pin PA5
+ Function SPI1_SCK
+ ******************************************************************************
+ */
+
+#include <stdint.h>
+
+#define RCC_BASE    (0x40021000UL)
+#define RCC_AHB2ENR (*(volatile uint32_t *)(RCC_BASE + 0x4C))
+
+#define GPIOA_BASE  (0x48000000UL)
+#define GPIOA_MODER (*(volatile uint32_t *)(GPIOA_BASE + 0x00))
+#define GPIOA_BSRR  (*(volatile uint32_t *)(GPIOA_BASE + 0x18))
+
+void delay(volatile uint32_t count) {
+	while (count--) {
+		__asm("nop");
+	}
+}
+
+int main(void) {
+	RCC_AHB2ENR |= (1 << 0); // Enable Clock
+
+	GPIOA_MODER &= ~(3 << 10); // for PA5 MODER takes 2 bits so 5 * 10 = 10
+	GPIOA_MODER |= (1 << 10); // Set MODE Output for PA5
+
+	while (1) {
+		GPIOA_BSRR |= (1 << 5);
+		delay(40000);
+
+		GPIOA_BSRR |= (1 << 21); // To turn off shift 16 with offset 5 so 16 + 5 = 21
+		delay(40000);
+	}
+}

@@ -1,10 +1,9 @@
-22:46:14 **** Incremental Build of configuration Debug for project 004TIM6LED ****
-make -j9 all 
-arm-none-eabi-size  004TIM6LED.elf 
-   text	   data	    bss	    dec	    hex	filename
-    904	      0	   1568	   2472	    9a8	004TIM6LED.elf
-Finished building: default.size.stdout
+22:55:11 **** Clean-only build of configuration Debug for project 004TIM6LED ****
+make -j9 clean 
+rm -rf ./Startup/startup_stm32l476rgtx.d ./Startup/startup_stm32l476rgtx.o
+rm -rf ./Src/main.cyclo ./Src/main.d ./Src/main.o ./Src/main.su ./Src/syscalls.cyclo ./Src/syscalls.d ./Src/syscalls.o ./Src/syscalls.su ./Src/sysmem.cyclo ./Src/sysmem.d ./Src/sysmem.o ./Src/sysmem.su
+rm -rf 004TIM6LED.elf 004TIM6LED.list 004TIM6LED.map default.size.stdout
  
 
-22:46:14 Build Finished. 0 errors, 0 warnings. (took 106ms)
+22:55:11 Build Finished. 0 errors, 0 warnings. (took 162ms)
 
