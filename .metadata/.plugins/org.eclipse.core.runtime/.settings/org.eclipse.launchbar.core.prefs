@@ -1,7 +1,7 @@
 LaunchTargetManager/org.eclipse.launchbar.core.launchTargetType.local,Local/arch=x86_64
 LaunchTargetManager/org.eclipse.launchbar.core.launchTargetType.local,Local/name=Local
 LaunchTargetManager/org.eclipse.launchbar.core.launchTargetType.local,Local/os=macosx
-configDescList=org.eclipse.cdt.dsf.gdb.gdbRemotedescriptorType\:006HALButtonLEDInterrupt,org.eclipse.cdt.dsf.gdb.gdbRemotedescriptorType\:003ButtonLEDInterrupt,org.eclipse.cdt.dsf.gdb.gdbRemotedescriptorType\:002ButtonLED,org.eclipse.cdt.dsf.gdb.gdbRemotedescriptorType\:001BlinkLED,org.eclipse.cdt.dsf.gdb.gdbRemotedescriptorType\:004TIM6LED,org.eclipse.cdt.dsf.gdb.gdbRemotedescriptorType\:005TIM6DebugLEDBlink
+configDescList=org.eclipse.cdt.dsf.gdb.gdbRemotedescriptorType\:006HALButtonLEDInterrupt,org.eclipse.cdt.dsf.gdb.gdbRemotedescriptorType\:003ButtonLEDInterrupt,org.eclipse.cdt.dsf.gdb.gdbRemotedescriptorType\:002ButtonLED,org.eclipse.cdt.dsf.gdb.gdbRemotedescriptorType\:001BlinkLED,org.eclipse.cdt.dsf.gdb.gdbRemotedescriptorType\:004TIM6LED,org.eclipse.cdt.dsf.gdb.gdbRemotedescriptorType\:005TIM6DebugLEDBlink,org.eclipse.cdt.dsf.gdb.gdbRemotedescriptorType\:007TurnOnLED
 eclipse.preferences.version=1
 org.eclipse.cdt.dsf.gdb.gdbRemotedescriptorType\:001BlinkLED/activeLaunchMode=run
 org.eclipse.cdt.dsf.gdb.gdbRemotedescriptorType\:001BlinkLED/activeLaunchTarget=null\:---
