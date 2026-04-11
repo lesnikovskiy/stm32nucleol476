@@ -27,7 +27,7 @@ void delay(volatile uint32_t count) {
 }
 
 int main(void) {
-	RCC_AHB2ENR |= (1 << 0); // Enable Clock
+	RCC_AHB2ENR |= (1 << 0); // Enable Port A
 
 	GPIOA_MODER &= ~(3 << 10); // for PA5 MODER takes 2 bits so 5 * 10 = 10
 	GPIOA_MODER |= (1 << 10); // Set MODE Output for PA5

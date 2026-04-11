@@ -1,5 +1,9 @@
 #include <stdint.h>
 
+// Debug in sleep mode
+#define DBGMCU_BASE   (0xE0042000UL)
+#define DBGMCU_CR     (*(volatile uint32_t *)(DBGMCU_BASE + 0x04))
+
 // Base Addresses
 #define RCC_BASE      0x40021000UL
 #define GPIOA_BASE    0x48000000UL
@@ -25,6 +29,9 @@
 #define NVIC_ISER1    (*(volatile uint32_t *)(0xE000E104UL))
 
 int main(void) {
+	// Enable debug in sleep mode (IMPORTANT for wfi)
+	DBGMCU_CR |= (1U << 0) | (1U << 1) | (1U << 2);
+
 	// 1. Enable Clocks for GPIOA and TIM6
 	RCC_AHB2ENR |= (1U << 0);
 	RCC_APB1ENR1 |= (1U << 4);
@@ -47,9 +54,8 @@ int main(void) {
 	TIM6_CR1 |= (1U << 0); // Set CEN (Counter Enable) bit
 
 	while (1) {
-		// Comment the line to avoid ST Link errors
-		// __asm("wfi");
 		// Wait For Interrupt (Sleep mode)
+		__asm volatile ("wfi");
 	}
 }
 

@@ -1,7 +1,8 @@
 #include <stdint.h>
 
 // Debug in sleep mode
-#define DBGMCU_CR             (*(volatile uint32_t *)0xE0042004UL)
+#define DBGMCU_BASE           (0xE0042000UL)
+#define DBGMCU_CR             (*(volatile uint32_t *)(DBGMCU_BASE + 0x04))
 
 // Vector Table and FPU
 #define SCB_VTOR              (*(volatile uint32_t *)0xE000ED08UL)
@@ -70,7 +71,7 @@ int main(void) {
 	TIM6_CR1 |= (1U << 0);
 
 	while (1) {
-		__asm("nop");
+		__asm volatile ("wfi");
 	}
 }
 

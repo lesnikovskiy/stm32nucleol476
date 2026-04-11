@@ -1,10 +1,10 @@
-23:34:22 **** Incremental Build of configuration Debug for project 004TIM6LED ****
+22:46:14 **** Incremental Build of configuration Debug for project 004TIM6LED ****
 make -j9 all 
 arm-none-eabi-size  004TIM6LED.elf 
    text	   data	    bss	    dec	    hex	filename
-    888	      0	   1568	   2456	    998	004TIM6LED.elf
+    904	      0	   1568	   2472	    9a8	004TIM6LED.elf
 Finished building: default.size.stdout
  
 
-23:34:23 Build Finished. 0 errors, 0 warnings. (took 95ms)
+22:46:14 Build Finished. 0 errors, 0 warnings. (took 106ms)
 
