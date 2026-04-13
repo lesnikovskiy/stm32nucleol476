@@ -29,6 +29,15 @@
 #define ITM_LAR      (*(volatile uint32_t *)(0xE0000FB0))
 
 int main(void) {
+	/*
+	 * IMPORTANT NOTE!!!
+	 * To make the ITM work enable SWD in debugger and set the Core Clock to 4MHz
+	 * SWO baud rate = Core Clock / (TPIU prescaler + 1)
+     * In the debugger settings:
+     * Core Clock = 4,000,000 Hz
+     * Prescaler = 1 (default)
+     * SWO Baud Rate = 4,000,000 / 2 = 2,000,000 baud (2Mbps)
+	 */
 	// 1. Enable GPIOB port clock
 	RCC_AHB2ENR |= (1 << 1);
 
