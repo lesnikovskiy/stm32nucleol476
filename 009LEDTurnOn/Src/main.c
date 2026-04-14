@@ -4,7 +4,7 @@ int main(void) {
 	uint32_t *gpioa_peripheral = (uint32_t*) 0x4002104C;
 	uint32_t *gpioa_moder = (uint32_t*) 0x48000000;
 	uint32_t *gpioa_data = (uint32_t*) 0x48000014;
-	//uint32_t *gpioa_bsrr = (uint32_t*) 0x48000018;
+//	uint32_t *gpioa_bsrr = (uint32_t*) 0x48000018;
 
 	// 1. Enable clock for GPIOA Peripheral
 	*gpioa_peripheral |= (1 << 0);
@@ -19,5 +19,8 @@ int main(void) {
 	//*gpioa_bsrr |= (1 << 5);
 
 	/* Loop forever */
-	for (;;);
+	for (;;) {
+		*gpioa_data ^= (1 << 5);
+		for (volatile uint32_t i = 0; i < 400000; i++);
+	}
 }
