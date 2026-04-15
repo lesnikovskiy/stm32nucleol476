@@ -1,10 +1,10 @@
 #include <stdint.h>
 
 int main(void) {
-	uint32_t *gpioa_peripheral = (uint32_t*) 0x4002104C;
-	uint32_t *gpioa_moder = (uint32_t*) 0x48000000;
-	uint32_t *gpioa_data = (uint32_t*) 0x48000014;
-//	uint32_t *gpioa_bsrr = (uint32_t*) 0x48000018;
+	uint32_t *const gpioa_peripheral = (uint32_t*) 0x4002104C;
+	uint32_t *const gpioa_moder = (uint32_t*) 0x48000000;
+	uint32_t *const gpioa_data = (uint32_t*) 0x48000014;
+//	uint32_t *const gpioa_bsrr = (uint32_t*) 0x48000018;
 
 	// 1. Enable clock for GPIOA Peripheral
 	*gpioa_peripheral |= (1 << 0);
