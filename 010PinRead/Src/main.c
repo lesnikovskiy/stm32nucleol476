@@ -23,7 +23,7 @@ int main(void) {
 
 	/* Loop forever */
 	for (;;) {
-		uint8_t pa0Status = (uint8_t) (*GPIOA_IDR & 0x1);
+		uint8_t pa0Status = (uint8_t) (*GPIOA_IDR & 0x1); // Zero out all the bits except 1
 
 		if (pa0Status) {
 			*GPIOA_ODR |= (1 << 5);
