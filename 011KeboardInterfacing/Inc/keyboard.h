@@ -2,6 +2,7 @@
 #define KEYBOARD_H_
 
 #include "stm32l476rg.h"
+#include "delay.h"
 
 void setup_ports(void);
 

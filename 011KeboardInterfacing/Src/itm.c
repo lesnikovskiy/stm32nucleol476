@@ -6,7 +6,7 @@ void ITM_Init(void) {
 	// Enable Port B
 	RCC->AHB2ENR |= (1 << 1);
 
-	// Configure PB2 as Alternate Function 0 (SYS_JTDO-SWO)
+	// Configure PB3 as Alternate Function 0 (SYS_JTDO-SWO)
 	GPIOB->MODER &= ~(3 << 6);
 	GPIOB->MODER |= (2 << 6); // 10 - AF
 	GPIOB->AFRL &= ~(0xF << 12); // AF0 for pin 3 (bits 12-15)

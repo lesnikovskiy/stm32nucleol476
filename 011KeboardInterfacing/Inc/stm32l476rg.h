@@ -4,6 +4,13 @@
 #include <stdint.h>
 
 typedef struct {
+	volatile uint32_t CTRL;   // Control and Status Register
+	volatile uint32_t LOAD;   // Reload Value Register
+	volatile uint32_t VAL;    // Current Value Register
+	volatile uint32_t CALIB;  // Calibration Register
+} SysTick_TypeDef;
+
+typedef struct {
 	volatile uint32_t PORT[32]; /* 0x000 to 0x07C: Stimulus Ports 0-31 */
 	uint32_t RESERVED0[864]; /* 0x080 to 0xDF0: Reserved gap */
 	volatile uint32_t TER; /* 0xE00: Trace Enable Register */
@@ -87,13 +94,15 @@ typedef struct {
 	volatile uint32_t TDR;
 } USART_TypeDef;
 
-#define ITM_BASE    (0xE0000000UL)
-#define RCC_BASE    (0x40021000UL)
-#define GPIOA_BASE  (0x48000000UL)
-#define GPIOB_BASE  (0x48000400UL)
-#define GPIOC_BASE  (0x48000800UL)
-#define USART2_BASE (0x40004400UL)
+#define SYSTICK_BASE (0xE000E010UL)
+#define ITM_BASE     (0xE0000000UL)
+#define RCC_BASE     (0x40021000UL)
+#define GPIOA_BASE   (0x48000000UL)
+#define GPIOB_BASE   (0x48000400UL)
+#define GPIOC_BASE   (0x48000800UL)
+#define USART2_BASE  (0x40004400UL)
 
+#define SysTick		((SysTick_TypeDef*) SYSTICK_BASE)
 #define ITM         ((ITM_TypeDef  *) ITM_BASE)
 #define RCC         ((RCC_TypeDef  *) RCC_BASE)
 #define GPIOA       ((GPIO_TypeDef *) GPIOA_BASE)

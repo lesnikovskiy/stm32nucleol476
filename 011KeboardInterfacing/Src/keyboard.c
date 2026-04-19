@@ -74,8 +74,9 @@ char get_key(void) {
 
 	// Check the first row PA6
 	GPIOA->ODR &= ~(1 << 6);
-	for (int i = 0; i < 50; i++)
-		__asm("nop");
+
+	delay_us(50);
+
 	// check columns for low state (PA9, PA8, PB10)
 	if (!(GPIOA->IDR & (1 << 9)))
 		return '1';
@@ -89,8 +90,9 @@ char get_key(void) {
 
 	// Check the second row PA7
 	GPIOA->ODR &= ~(1 << 7);
-	for (int i = 0; i < 50; i++)
-		__asm("nop");
+
+	delay_us(50);
+
 	// check columns for low state (PA9, PA8, PB10)
 	if (!(GPIOA->IDR & (1 << 9)))
 		return '4';
@@ -104,8 +106,9 @@ char get_key(void) {
 
 	// Check the third row PB6
 	GPIOB->ODR &= ~(1 << 6);
-	for (int i = 0; i < 50; i++)
-		__asm("nop");
+
+	delay_us(50);
+
 	// check columns for low state (PA9, PA8, PB10)
 	if (!(GPIOA->IDR & (1 << 9)))
 		return '7';
@@ -119,8 +122,9 @@ char get_key(void) {
 
 	// Check the fourth row PC7
 	GPIOC->ODR &= ~(1 << 7);
-	for (int i = 0; i < 50; i++)
-		__asm("nop");
+
+	delay_us(50);
+
 	// check columns for low state (PA9, PA8, PB10)
 	if (!(GPIOA->IDR & (1 << 9)))
 		return '*';

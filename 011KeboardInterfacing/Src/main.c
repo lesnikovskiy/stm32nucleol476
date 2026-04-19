@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "stm32l476rg.h"
-//#include "itm.h"
+#include "delay.h"
 #include "usart.h"
 #include "keyboard.h"
 
@@ -46,6 +46,7 @@ int main(void) {
 
 		if (current_key != 0 && current_key != last_key) {
 			printf("%c\r\n", current_key);
+			delay_ms(20);
 		}
 
 		last_key = current_key;
@@ -68,10 +69,8 @@ int main(void) {
 		if (btn_now == 0 && btn_last == 1) {
 			GPIOA->ODR ^= (1 << 5);
 			printf("Button pressed. LED toggled.\r\n");
+			delay_ms(20);
 		}
 		btn_last = btn_now;
-
-		for (int i = 0; i < 50000; i++)
-			__asm("nop");
 	}
 }
