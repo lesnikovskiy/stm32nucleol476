@@ -17,11 +17,14 @@ int main(void) {
 	// ITM_Init();
 	USART_Init();
 
+	setup_ports();
+
 	// Setup PA5 (LED) to OUTPUT
 	GPIOA->MODER &= ~(3 << 10);
 	GPIOA->MODER |= (1 << 10);
 
-	setup_ports();
+	// Setup PC13 (Button) to INPUT
+	GPIOC->MODER &= ~(3 << 26);
 
 	setup_row1();
 	setup_row2();
@@ -35,6 +38,7 @@ int main(void) {
 	printf("ITM is working successfully\r\n");
 
 	char last_key = 0;
+	static uint8_t btn_last = 1;
 
 	while (1) {
 		// Read key from keyboard
@@ -57,6 +61,15 @@ int main(void) {
 				printf("\r\nLED Toggled\r\n");
 			}
 		}
+
+		// Toggle LED if PC13 (User Button) pressed
+		uint8_t btn_now = (GPIOC->IDR >> 13) & 0x1;
+
+		if (btn_now == 0 && btn_last == 1) {
+			GPIOA->ODR ^= (1 << 5);
+			printf("Button pressed. LED toggled.\r\n");
+		}
+		btn_last = btn_now;
 
 		for (int i = 0; i < 50000; i++)
 			__asm("nop");
