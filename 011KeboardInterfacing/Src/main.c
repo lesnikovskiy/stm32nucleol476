@@ -18,6 +18,7 @@ int main(void) {
 	USART_Init();
 
 	setup_ports();
+	setup_keyboard();
 
 	// Setup PA5 (LED) to OUTPUT
 	GPIOA->MODER &= ~(3 << 10);
@@ -26,16 +27,7 @@ int main(void) {
 	// Setup PC13 (Button) to INPUT
 	GPIOC->MODER &= ~(3 << 26);
 
-	setup_row1();
-	setup_row2();
-	setup_row3();
-	setup_row4();
-
-	setup_col1();
-	setup_col2();
-	setup_col3();
-
-	printf("ITM is working successfully\r\n");
+	printf("UART is initialized successfully\r\n");
 
 	char last_key = 0;
 	static uint8_t btn_last = 1;
