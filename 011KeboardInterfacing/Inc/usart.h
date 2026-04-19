@@ -16,4 +16,7 @@ void USART_Init(void);
 void USART_send_char(const char ch);
 void USART_send_str(const char *str);
 
+int USART_is_data_available(void);
+char USART_read_char(void);
+
 #endif /* USART_H_ */

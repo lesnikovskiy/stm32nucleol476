@@ -17,6 +17,10 @@ int main(void) {
 	// ITM_Init();
 	USART_Init();
 
+	// Setup PA5 (LED) to OUTPUT
+	GPIOA->MODER &= ~(3 << 10);
+	GPIOA->MODER |= (1 << 10);
+
 	setup_ports();
 
 	setup_row1();
@@ -33,6 +37,7 @@ int main(void) {
 	char last_key = 0;
 
 	while (1) {
+		// Read key from keyboard
 		char current_key = get_key();
 
 		if (current_key != 0 && current_key != last_key) {
@@ -40,6 +45,18 @@ int main(void) {
 		}
 
 		last_key = current_key;
+
+		// Read key from terminal
+		if (USART_is_data_available()) {
+			char rx_char = USART_read_char();
+			// echo
+			USART_send_char(rx_char);
+
+			if (rx_char == 'l' || rx_char == 'L') {
+				GPIOA->ODR ^= (1 << 5);
+				printf("\r\nLED Toggled\r\n");
+			}
+		}
 
 		for (int i = 0; i < 50000; i++)
 			__asm("nop");

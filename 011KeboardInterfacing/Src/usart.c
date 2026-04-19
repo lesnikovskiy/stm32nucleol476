@@ -31,3 +31,16 @@ void USART_send_str(const char *str) {
 		USART_send_char(*str++);
 	}
 }
+
+int USART_is_data_available(void) {
+	// Non blocking check if RxNE = 1 data is available
+	return (USART->ISR & (1 << 5));
+}
+
+char USART_read_char(void) {
+	// Wait RxNE
+	while (!(USART->ISR & (1 << 5)));
+
+	// Read RDR data register, reading resets RxNE
+	return (char) (USART->RDR & 0xFF);
+}
