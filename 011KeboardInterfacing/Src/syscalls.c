@@ -29,7 +29,8 @@
 #include <time.h>
 #include <sys/time.h>
 #include <sys/times.h>
-#include "itm.h"
+//#include "itm.h"
+#include "usart.h"
 
 /* Variables */
 extern int __io_putchar(int ch) __attribute__((weak));
@@ -75,7 +76,8 @@ __attribute__((weak)) int _write(int file, char *ptr, int len) {
 	int DataIdx;
 
 	for (DataIdx = 0; DataIdx < len; DataIdx++) {
-		ITM_SendChar(*ptr++);
+		// ITM_SendChar(*ptr++);
+		USART_send_char(*ptr++);
 	}
 	return len;
 }

@@ -73,17 +73,33 @@ typedef struct {
 	volatile uint32_t ASCR; /* 0x2C: Analog Switch Control */
 } GPIO_TypeDef;
 
+typedef struct {
+	volatile uint32_t CR1;
+	volatile uint32_t CR2;
+	volatile uint32_t CR3;
+	volatile uint32_t BRR;
+	volatile uint32_t GTPR;
+	volatile uint32_t RTOR;
+	volatile uint32_t RQR;
+	volatile uint32_t ISR;
+	volatile uint32_t ICR;
+	volatile uint32_t RDR;
+	volatile uint32_t TDR;
+} USART_TypeDef;
+
 #define ITM_BASE    (0xE0000000UL)
 #define RCC_BASE    (0x40021000UL)
 #define GPIOA_BASE  (0x48000000UL)
 #define GPIOB_BASE  (0x48000400UL)
 #define GPIOC_BASE  (0x48000800UL)
+#define USART2_BASE (0x40004400UL)
 
 #define ITM         ((ITM_TypeDef  *) ITM_BASE)
 #define RCC         ((RCC_TypeDef  *) RCC_BASE)
 #define GPIOA       ((GPIO_TypeDef *) GPIOA_BASE)
 #define GPIOB       ((GPIO_TypeDef *) GPIOB_BASE)
 #define GPIOC       ((GPIO_TypeDef *) GPIOC_BASE)
+#define USART       ((USART_TypeDef *) USART2_BASE)
 
 #define DEMCR       (*(volatile uint32_t *)0xE000EDFC)
 

@@ -14,4 +14,6 @@ void setup_col1(void);
 void setup_col2(void);
 void setup_col3(void);
 
+char get_key(void);
+
 #endif /* KEYBOARD_H_ */
