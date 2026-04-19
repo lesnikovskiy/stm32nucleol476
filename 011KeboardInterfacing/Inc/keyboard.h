@@ -17,4 +17,13 @@ void setup_col3(void);
 
 char get_key(void);
 
+// Optimized version
+typedef struct {
+	GPIO_TypeDef* port;
+	uint16_t pin;
+} PinConfig;
+
+void setup_keyboard(void);
+char get_opt_key(void);
+
 #endif /* KEYBOARD_H_ */
