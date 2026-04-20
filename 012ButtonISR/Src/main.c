@@ -28,7 +28,7 @@ typedef struct {
 #define NVIC_BASE   (0xE000E100UL) // PM0214 4.1
 
 #define RCC_AHB2ENR    (*(volatile uint32_t*)(RCC_BASE + 0x4C))
-#define RCC_AHB1ENR1   (*(volatile uint32_t*)(RCC_BASE + 0x58))
+#define RCC_APB1ENR1   (*(volatile uint32_t*)(RCC_BASE + 0x58))
 #define RCC_APB2ENR    (*(volatile uint32_t*)(RCC_BASE + 0x60))
 #define GPIOA_MODER    (*(volatile uint32_t*)(GPIOA_BASE + 0x00))
 #define GPIOA_AFRL     (*(volatile uint32_t*)(GPIOA_BASE + 0x20))
@@ -62,19 +62,20 @@ int main(void) {
 	printf("USART has been initialized\r\n");
 
 	while (1) {
-		// Disable interrupt
-		EXTI_IMR1 &= ~(1 << 13);
-
 		if (g_button_pressed) {
-			// ~20ms debouncing for 4MHz CPU
-			for (uint32_t volatile i = 0; i < 20000; i++);
-			g_button_press_count++;
-			printf("Button is pressed : %lu\r\n", g_button_press_count);
-			g_button_pressed = 0;
-		}
+			// Disable interrupt
+			EXTI_IMR1 &= ~(1 << 13);
 
-		// Enable interrupt
-		EXTI_IMR1 |= (1 << 13);
+			g_button_pressed = 0;
+			g_button_press_count++;
+
+			// Enable interrupt
+			EXTI_IMR1 |= (1 << 13);
+
+			printf("Button is pressed : %lu\r\n", g_button_press_count);
+
+			for (uint32_t volatile i = 0; i < 20000; i++);
+		}
 	}
 }
 
@@ -111,7 +112,7 @@ void usart_init(void) {
 	RCC_AHB2ENR |= (1 << 0);
 
 	// Enable USART2
-	RCC_AHB1ENR1 |= (1 << 17);
+	RCC_APB1ENR1 |= (1 << 17);
 
 	// Set PA2(TX) and PA3(RX) in AF Mode (10)
 	GPIOA_MODER &= ~((3 << 4) | (3 << 6));
