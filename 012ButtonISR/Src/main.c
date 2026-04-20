@@ -32,6 +32,7 @@ typedef struct {
 #define RCC_APB2ENR    (*(volatile uint32_t*)(RCC_BASE + 0x60))
 #define GPIOA_MODER    (*(volatile uint32_t*)(GPIOA_BASE + 0x00))
 #define GPIOA_PUPDR    (*(volatile uint32_t*)(GPIOA_BASE + 0x0C))
+#define GPIOA_BSRR     (*(volatile uint32_t*)(GPIOA_BASE + 0x18))
 #define GPIOA_AFRL     (*(volatile uint32_t*)(GPIOA_BASE + 0x20))
 #define GPIOC_MODER    (*(volatile uint32_t*)(GPIOC_BASE + 0x00))
 #define GPIOC_PUPDR    (*(volatile uint32_t*)(GPIOC_BASE + 0x0C))
@@ -51,12 +52,16 @@ typedef struct {
 uint8_t volatile g_button_pressed = 0;
 uint32_t g_button_press_count = 0UL;
 
+void led_init(void);
+void led_on(void);
+void led_off(void);
 void button_init(void);
 void usart_init(void);
 void usart_send_char(char ch);
 void usart_send_str(const char *str);
 
 int main(void) {
+	led_init();
 	button_init();
 	usart_init();
 
@@ -64,6 +69,7 @@ int main(void) {
 
 	while (1) {
 		if (g_button_pressed) {
+			led_on();
 			// Disable interrupt
 			EXTI_IMR1 &= ~(1 << 13);
 
@@ -77,8 +83,26 @@ int main(void) {
 			EXTI_IMR1 |= (1 << 13);
 
 			printf("Button is pressed : %lu\r\n", g_button_press_count);
+			led_off();
 		}
 	}
+}
+
+void led_init(void) {
+	// Enable Port A for PA5 (LED)
+	RCC_AHB2ENR |= (1 << 0);
+
+	// Set PA5 OUTPUT mode
+	GPIOA_MODER &= ~(3 << (5 * 2));
+	GPIOA_MODER |= (1 << (5 * 2));
+}
+
+void led_on(void) {
+	GPIOA_BSRR = (1 << 5);
+}
+
+void led_off(void) {
+	GPIOA_BSRR = (1 << (5 + 16));
 }
 
 void button_init(void) {
