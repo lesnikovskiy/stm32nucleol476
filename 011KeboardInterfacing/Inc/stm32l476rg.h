@@ -94,7 +94,7 @@ typedef struct {
 	volatile uint32_t TDR;
 } USART_TypeDef;
 
-#define SYSTICK_BASE (0xE000E010UL)
+#define SYSTICK_BASE (0xE000E010UL) // PM0214 4.1 System timer
 #define ITM_BASE     (0xE0000000UL)
 #define RCC_BASE     (0x40021000UL)
 #define GPIOA_BASE   (0x48000000UL)

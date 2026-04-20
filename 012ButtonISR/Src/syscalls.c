@@ -30,6 +30,7 @@
 #include <sys/time.h>
 #include <sys/times.h>
 
+extern void usart_send_char(char ch);
 
 /* Variables */
 extern int __io_putchar(int ch) __attribute__((weak));
@@ -84,7 +85,7 @@ __attribute__((weak)) int _write(int file, char *ptr, int len)
 
   for (DataIdx = 0; DataIdx < len; DataIdx++)
   {
-    __io_putchar(*ptr++);
+	  usart_send_char(*ptr++);
   }
   return len;
 }
