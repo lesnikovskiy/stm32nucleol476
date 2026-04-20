@@ -39,6 +39,7 @@ typedef struct {
 #define USART_CR1      (*(volatile uint32_t*)(USART2_BASE + 0x00))
 #define USART_BRR      (*(volatile uint32_t*)(USART2_BASE + 0x0C))
 #define USART_ISR      (*(volatile uint32_t*)(USART2_BASE + 0x1C))
+#define USART_RDR      (*(volatile uint32_t*)(USART2_BASE + 0x24))
 #define USART_TDR      (*(volatile uint32_t*)(USART2_BASE + 0x28))
 #define EXTI_IMR1      (*(volatile uint32_t*)(EXTI_BASE + 0x00))
 #define EXTI_FTSR1     (*(volatile uint32_t*)(EXTI_BASE + 0x0C))
@@ -117,18 +118,21 @@ void button_init(void) {
 	GPIOC_PUPDR &= ~(3 << (13 * 2));
 	GPIOC_PUPDR |= (1 << (13 * 2));
 
-	// Map EXTI13 to PORT C
+	// Map EXTI13 to PORT C (0010: PC[13] pin) (
 	// in EXITCR4 bits 4-7 control line 13. 0010 is Port C.
 	// refer to RM0351 9.26 SYSCFG external interrupt configuration register 4
 	SYSCFG_EXTICR4 &= ~(0xF << 4);
 	SYSCFG_EXTICR4 |= (2 << 4);
 
-	// Configure EXIT Line 13
+	// Configure EXTI Line 13
 	EXTI_FTSR1 |= (1 << 13); // Falling edge (button press)
 	EXTI_IMR1 |= (1 << 13);  // Unmask interrupt
 
 	// Refer to RM0351 13.3 Interrupt and exception vectors Table 58
 	// Enable NVIC IRQ 40 EXTI15_10
+	// ISER[0] controls pins 0 - 31
+	// ISER[1] controls pins 32 - 63
+	// ISER[2] controls pins 64 - 95
 	// IRQ 40 is bit 8 of ISER[1] (40 - 32 = 8)
 	NVIC_ISER1 |= (1 << 8);
 }
@@ -155,8 +159,15 @@ void usart_init(void) {
 	// Set Baud Rate
 	USART_BRR = 4000000 / 115200;
 
+	// Enable Interrupt RXNEIE
+	USART_CR1 |= (1 << 5);
+
 	// Enable TX, RX and USART
 	USART_CR1 |= (1 << 3) | (1 << 2) | (1 << 0);
+
+	// USART2 NVIC IRQ 38
+	// 38 - 32 = 6 bit in ISER1
+	NVIC_ISER1 |= (1 << 6);
 }
 
 void usart_send_char(char ch) {
@@ -174,5 +185,24 @@ void EXTI15_10_IRQHandler(void) {
 	if (EXTI_PR1 & (1 << 13)) {
 		g_button_pressed = 1;
 		EXTI_PR1 |= (1 << 13); // Clear pending bit by writing 1
+	}
+}
+
+void USART2_IRQHandler(void) {
+	// Check if interrupt is triggered by RxNE
+	if (USART_ISR & (1 << 5)) {
+		// Read byte
+		char received = (char) USART_RDR;
+		usart_send_char(received);
+
+		if (received == '\r') {
+			usart_send_char('\n');
+		}
+
+		if (received == 'h' || received == 'H') {
+			led_on();
+		} else if (received == 'l' || received == 'L') {
+			led_off();
+		}
 	}
 }

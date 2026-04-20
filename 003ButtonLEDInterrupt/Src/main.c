@@ -23,7 +23,7 @@
 #define SYSCFG_EXTICR4 (*(volatile uint32_t *)0x40010014UL)
 #define EXTI_IMR1      (*(volatile uint32_t *)0x40010400UL)
 #define EXTI_FTSR1     (*(volatile uint32_t *)0x4001040CUL)
-#define EXTI_PR1       (*(volatile uint32_t *)0x40010420UL)
+#define EXTI_PR1       (*(volatile uint32_t *)0x40010414UL)
 
 // NVIC (Interrupt Controller)
 #define NVIC_ISER1     (*(volatile uint32_t *)0xE000E104UL)
