@@ -31,6 +31,7 @@ typedef struct {
 #define RCC_APB1ENR1   (*(volatile uint32_t*)(RCC_BASE + 0x58))
 #define RCC_APB2ENR    (*(volatile uint32_t*)(RCC_BASE + 0x60))
 #define GPIOA_MODER    (*(volatile uint32_t*)(GPIOA_BASE + 0x00))
+#define GPIOA_PUPDR    (*(volatile uint32_t*)(GPIOA_BASE + 0x0C))
 #define GPIOA_AFRL     (*(volatile uint32_t*)(GPIOA_BASE + 0x20))
 #define GPIOC_MODER    (*(volatile uint32_t*)(GPIOC_BASE + 0x00))
 #define GPIOC_PUPDR    (*(volatile uint32_t*)(GPIOC_BASE + 0x0C))
@@ -69,12 +70,13 @@ int main(void) {
 			g_button_pressed = 0;
 			g_button_press_count++;
 
+			// debounce
+			for (uint32_t volatile i = 0; i < 20000; i++);
+
 			// Enable interrupt
 			EXTI_IMR1 |= (1 << 13);
 
 			printf("Button is pressed : %lu\r\n", g_button_press_count);
-
-			for (uint32_t volatile i = 0; i < 20000; i++);
 		}
 	}
 }
@@ -117,6 +119,10 @@ void usart_init(void) {
 	// Set PA2(TX) and PA3(RX) in AF Mode (10)
 	GPIOA_MODER &= ~((3 << 4) | (3 << 6));
 	GPIOA_MODER |= (2 << 4) | (2 << 6);
+
+	// Set PA2(TX) and PA3(RX) pull up resistor
+	GPIOA_PUPDR &= ~((3 << 4) | (3 << 6));
+	GPIOA_PUPDR |= (1 << 4) | (1 << 6);
 
 	// Set PA2(TX) and PA3(RX) AF7
 	GPIOA_AFRL &= ~((0xF << 8) | (0xF << 12));
