@@ -63,4 +63,12 @@ typedef struct {
 	uint32_t RESERVED :16;
 } GPIOx_ODR_t;
 
+#define HIGH 1
+#define LOW  0
+
+#define INPUT_MODE   0
+#define OUTPUT_MODE  0x1
+#define AF_MODE      0x2
+#define ANALOG_MODE  0x3
+
 #endif /* MAIN_H_ */
