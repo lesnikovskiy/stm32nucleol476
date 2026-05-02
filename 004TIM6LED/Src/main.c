@@ -5,9 +5,9 @@
 #define DBGMCU_CR     (*(volatile uint32_t *)(DBGMCU_BASE + 0x04))
 
 // Base Addresses
-#define RCC_BASE      0x40021000UL
-#define GPIOA_BASE    0x48000000UL
-#define TIM6_BASE     0x40001000UL
+#define RCC_BASE      (0x40021000UL)
+#define GPIOA_BASE    (0x48000000UL)
+#define TIM6_BASE     (0x40001000UL)
 
 // RCC Registers
 #define RCC_AHB2ENR   (*(volatile uint32_t *)(RCC_BASE + 0x4C))
