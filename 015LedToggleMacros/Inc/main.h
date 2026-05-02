@@ -66,10 +66,12 @@ typedef struct {
 #define HIGH 1
 #define LOW  0
 
-#define INPUT_MODE   0
-#define OUTPUT_MODE  0x1
-#define AF_MODE      0x2
-#define ANALOG_MODE  0x3
+#define INPUT_MODE   (0)
+#define OUTPUT_MODE  (0x1)
+#define AF_MODE      (0x2)
+#define ANALOG_MODE  (0x3)
+
+#define DELAY        (400000UL)
 
 #define AHB2_ENR     ((RCC_AHB2ENR_t*) 0x4002104CUL)
 #define GPIOA_MODER  ((GPIOx_MODE_t*) 0x48000000UL)
